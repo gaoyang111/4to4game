@@ -80,6 +80,8 @@ func (g *Game) MakeMove(move Move) {
 func (g *Game) CheckCapture(row, col int) {
 	// 检查垂直方向
 	g.checkVerticalCapture(col)
+	// 检查水平方向
+	g.checkHorizontalCapture(row)
 }
 
 // checkVerticalCapture 检查垂直方向的吃子
@@ -112,6 +114,43 @@ func (g *Game) checkVerticalCapture(col int) {
 					g.Board[i][col] = "."
 					// 递归检查是否有新的吃子
 					g.checkVerticalCapture(col)
+					break
+				}
+			}
+		}
+	}
+}
+
+// checkHorizontalCapture 检查水平方向的吃子
+func (g *Game) checkHorizontalCapture(row int) {
+	// 检查所有连续的3个位置
+	for j := 0; j <= 1; j++ {
+		// 获取连续3个位置的棋子
+		piece1 := g.Board[row][j]
+		piece2 := g.Board[row][j+1]
+		piece3 := g.Board[row][j+2]
+
+		// 检查是否形成2打1，且都不能为空
+		if piece1 != "." && piece2 != "." && piece3 != "." {
+			// 情况1：前两个相同，第三个不同（2-1结构，如红红黑）
+			if piece1 == piece2 && piece1 != piece3 {
+				// 检查第4个位置，确保不是2-2结构
+				if j+3 >= 4 || g.Board[row][j+3] == "." || g.Board[row][j+3] == piece1 {
+					// 吃掉第三个棋子
+					g.Board[row][j+2] = "."
+					// 递归检查是否有新的吃子
+					g.checkHorizontalCapture(row)
+					break
+				}
+			}
+			// 情况2：后两个相同，第一个不同（1-2结构，如红黑黑）
+			if piece2 == piece3 && piece2 != piece1 {
+				// 检查前一个位置，确保不是2-2结构
+				if j-1 < 0 || g.Board[row][j-1] == "." || g.Board[row][j-1] == piece2 {
+					// 吃掉第一个棋子
+					g.Board[row][j] = "."
+					// 递归检查是否有新的吃子
+					g.checkHorizontalCapture(row)
 					break
 				}
 			}

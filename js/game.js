@@ -72,7 +72,7 @@ class Game {
 			for (let col = 0; col < 4; col++) {
 				const cellElement = document.createElement('div');
 				cellElement.className = 'cell';
-				cellElement.style.cssText = 'width:60px;height:60px;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;';
+				cellElement.style.cssText = 'width:80px;height:80px;border:2px solid #ccc;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;';
 				cellElement.dataset.row = row;
 				cellElement.dataset.col = col;
 
@@ -81,7 +81,7 @@ class Game {
 				
 				if (piece === 'R' || piece === 'B') {
 					const pieceElement = document.createElement('div');
-					pieceElement.style.cssText = `width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;color:white;background-color:${piece === 'R' ? '#d9534f' : '#333'};`;
+					pieceElement.style.cssText = `width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:24px;color:white;background-color:${piece === 'R' ? '#d9534f' : '#333'};`;
 					pieceElement.textContent = piece;
 					cellElement.appendChild(pieceElement);
 				}
@@ -147,13 +147,21 @@ class Game {
 
 	handleWinner(winner) {
 		const winnerText = winner === 'R' ? '红方' : '黑方';
-		document.getElementById('message').textContent = `游戏结束！${winnerText}获胜！`;
-		// 禁用棋盘点击
-		const cells = document.querySelectorAll('.cell');
-		cells.forEach(cell => {
-			cell.removeEventListener('click', this.handleCellClick);
-			cell.style.cursor = 'default';
-		});
+		const playAgain = confirm(`游戏结束！${winnerText}获胜！\n\n是否开始新的一轮？`);
+		if (playAgain) {
+			// 重新连接WebSocket开始新游戏
+			this.setupWebSocket();
+		} else {
+			document.getElementById('message').textContent = `游戏结束！${winnerText}获胜！`;
+			// 禁用棋盘点击
+			const cells = document.querySelectorAll('.cell');
+			cells.forEach(cell => {
+				cell.style.cursor = 'default';
+				// 移除点击事件监听器
+				const newCell = cell.cloneNode(true);
+				cell.parentNode.replaceChild(newCell, cell);
+			});
+		}
 	}
 }
 
